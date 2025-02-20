@@ -12,7 +12,7 @@ class UserController extends Controller
 {
     /**
      * Create a new UserController instance.
-     * 
+     *
      * @return void
      */
     public function __construct()
@@ -26,7 +26,7 @@ class UserController extends Controller
      * @param \Illuminate\Http\Request
      * @bodyParam  string  $username
      * @bodyParam  string  $password
-     * 
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function login(Request $request)
@@ -98,7 +98,7 @@ class UserController extends Controller
      * @param \Illuminate\Http\Request
      * @bodyParam  string  $username
      * @bodyParam  string  $password
-     * 
+     *
      * @return Response
      */
     public function create(Request $request)
@@ -111,19 +111,20 @@ class UserController extends Controller
             return (new ErrorResource($request))->response()->setStatusCode(400);
         }
 
-        // Check if username is already 
+        // Check if username is already
         $user = User::firstWhere('username', $request->username);
         if ($user) {
             $request->message = 'Username already exists';
             return (new ErrorResource($request))->response()->setStatusCode(400);
         }
-        
+
         $newUser = new User();
         $newUser->username = $request->username;
         $newUser->password = Hash::make($request->password, [
             'rounds' => 15,
         ]);
         $newUser->role = "USER";
+        $newUser->created_by = $request->created_by;
 
         $newUser->save();
 
@@ -131,12 +132,12 @@ class UserController extends Controller
         $request->data = $newUser;
         return (new GlobalResource($request))->response()->setStatusCode(201);
     }
-    
+
     /**
      * list all users
-     * 
+     *
      * @param Request $request
-     * 
+     *
      * @return Response
      */
     public function listAllUsers(Request $request)
@@ -166,7 +167,7 @@ class UserController extends Controller
      * @param \Illuminate\Http\Request
      * @bodyParam  string  $username
      * @bodyParam  string  $password
-     * 
+     *
      * @return Response
      */
     public function update(Request $request, $id)
@@ -181,7 +182,7 @@ class UserController extends Controller
 
         $newUser = User::find($id);
         if ($newUser->username != $request->username) {
-            // Check if user is already 
+            // Check if user is already
             $checkUser = User::firstWhere('username', $request->username);
             if ($checkUser) {
                 $request->message = 'username already exists';
@@ -207,7 +208,7 @@ class UserController extends Controller
      *
      * @param \Illuminate\Http\Request
      * @param  int  $id
-     * 
+     *
      * @return Response
      */
     public function delete(Request $request, $id)
